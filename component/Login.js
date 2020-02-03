@@ -1,24 +1,26 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, TextInput, Button, KeyboardAvoidingView, Alert } from 'react-native';
+import  FlatlistBasic  from './FlatlistBasic'
 
 export default class Login extends Component {
     constructor(props) {
         super(props);
         this.state = {
             email: '',
-            password: ''
+            password: '',
+            accessToken: null
         }
     }
     render() {
-        return (
-            <View style={styles.container} >    
+        if (this.state.accessToken == null) {
+            return <View style={styles.container} >
                 <View style={styles.logoContainer}>
-                    <Image style={styles.logo} source={require('../Images/crickbuzz.png')}></Image>
+                    <Image style={styles.logo} source={require('../assets/recipe.png')}></Image>
                 </View>
                 <TextInput style={styles.input}
                     placeholder='Email or Mobile Num'
-                    onChangeText = {(email)=> {this.setState({email})}}
-                    placeholderTextColor="rgba(255, 255, 255, 1.0 )"
+                    onChangeText={(email) => { this.setState({ email }) }}
+                    placeholderTextColor="black"
                     returnKeyType='next'
                     keyboardType="email-address"
                     onSubmitEditing={() => this.passwordInput.focus()}
@@ -27,18 +29,22 @@ export default class Login extends Component {
                 />
                 <TextInput style={styles.input}
                     placeholder='Password'
-                    onChangeText = {(password)=> {this.setState({password})}}
-                    placeholderTextColor="rgba(255, 255, 255, 1.0 )"
+                    onChangeText={(password) => { this.setState({ password }) }}
+                    placeholderTextColor="black"
                     secureTextEntry
                     returnKeyType='go'
                     ref={(input) => this.passwordInput = input}
                 />
-
                 <TouchableOpacity style={styles.buttonContainer} >
                     <Text style={styles.buttonText} onPress={this.onClick}>LOGIN</Text>
                 </TouchableOpacity>
             </View >
-        );
+        } else {
+            console.log('----------dssdasasa')
+            return <View style={[styles.mainContainer, styles.shadow]}>
+                <FlatlistBasic token={this.state.accessToken} />
+            </View>
+        }
     }
 
     onClick = async () => {
@@ -54,18 +60,19 @@ export default class Login extends Component {
                 password: this.state.password,
             }),
         }).then(response => {
-            // console.log(response);
             if (response.status === 200) {
                 return response.json();
             } else {
-                 Alert.alert("Fail", 'Plese eneter valid credentails');
+                Alert.alert("Fail", 'Plese eneter valid credentails');
             }
         }).then(response => {
             console.log(response);
             if (response) {
-              Alert.alert("Success", "Welcome to Cricbuzz");
+                this.setState({ accessToken: response.token });
+                Alert.alert("Success", "Welcome to Secret Recipe");  
             }
-          }).catch (err => {
+           
+        }).catch(err => {
             // console.log(err);
         });
     }
@@ -74,13 +81,16 @@ export default class Login extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        // backgroundColor: '#7fe6e8',
+        backgroundColor: '#F4C095',
         justifyContent: 'center',
         padding: 20
     },
+    mainContainer: {
+        flex: 1,
+    },
     input: {
         height: 40,
-        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+        backgroundColor: '#FFFFFB',
         marginBottom: 20,
         padding: 15,
         paddingHorizontal: 10,
